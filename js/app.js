@@ -10,13 +10,10 @@
   const elAreaStatus = document.getElementById("areaStatus");
   const elSecaoCatalogo = document.getElementById("secaoCatalogo");
   const elSecaoFavoritos = document.getElementById("secaoFavoritos");
-  const elSecaoAdmin = document.getElementById("secaoAdmin");
   const elMsgFavoritosVazio = document.getElementById("msgFavoritosVazio");
   const elBadgeFavoritos = document.getElementById("badgeFavoritos");
-  const elHeaderCatalogo = document.querySelector("main > header");
   const btnVerTodos = document.getElementById("btnVerTodos");
   const btnVerFavoritos = document.getElementById("btnVerFavoritos");
-  const btnVerAdmin = document.getElementById("btnVerAdmin");
 
   function produtoPorId(id) {
     return todosProdutos.find((p) => p.id === id);
@@ -45,12 +42,11 @@
     const favorito = StorageFavoritos.estaFavoritado(produto.id);
     const col = document.createElement("div");
     col.className = "col";
-    const ehLocal = Number(produto.id) < 0;
     col.innerHTML = `
       <div class="card card-produto h-100 shadow-sm ${favorito ? "border-warning" : ""}" data-product-id="${produto.id}">
         <img src="${escapeHtml(produto.thumbnail || "")}" class="card-img-top" alt="${escapeHtml(produto.title || "Produto")}" loading="lazy" />
         <div class="card-body d-flex flex-column">
-          <h3 class="card-title h6 mb-2">${escapeHtml(produto.title || "")}${ehLocal ? ' <span class="badge bg-secondary">Local</span>' : ""}</h3>
+          <h3 class="card-title h6 mb-2">${escapeHtml(produto.title || "")}</h3>
           <span class="badge-categoria align-self-start mb-2">${escapeHtml(produto.category || "—")}</span>
           <p class="preco-produto mb-2">${formatarPreco(produto.price)}</p>
           <div class="mt-auto d-flex justify-content-between align-items-center">
@@ -127,41 +123,21 @@
   function limparNavAtiva() {
     btnVerTodos.removeAttribute("aria-current");
     btnVerFavoritos.removeAttribute("aria-current");
-    if (btnVerAdmin) btnVerAdmin.removeAttribute("aria-current");
   }
 
   function mostrarCatalogo() {
     elSecaoCatalogo.classList.remove("d-none");
     elSecaoFavoritos.classList.add("d-none");
-    if (elSecaoAdmin) elSecaoAdmin.classList.add("d-none");
-    if (elHeaderCatalogo) elHeaderCatalogo.classList.remove("d-none");
     limparNavAtiva();
     btnVerTodos.setAttribute("aria-current", "page");
-    history.replaceState(null, "", location.pathname);
   }
 
   function mostrarFavoritos() {
     elSecaoCatalogo.classList.add("d-none");
     elSecaoFavoritos.classList.remove("d-none");
-    if (elSecaoAdmin) elSecaoAdmin.classList.add("d-none");
-    if (elHeaderCatalogo) elHeaderCatalogo.classList.remove("d-none");
     limparNavAtiva();
     btnVerFavoritos.setAttribute("aria-current", "page");
-    history.replaceState(null, "", location.pathname);
     renderFavoritos();
-  }
-
-  function mostrarAdmin() {
-    if (!elSecaoAdmin) return;
-    elSecaoCatalogo.classList.add("d-none");
-    elSecaoFavoritos.classList.add("d-none");
-    elSecaoAdmin.classList.remove("d-none");
-    if (elHeaderCatalogo) elHeaderCatalogo.classList.add("d-none");
-    elAreaStatus.textContent = "";
-    limparNavAtiva();
-    btnVerAdmin.setAttribute("aria-current", "page");
-    history.replaceState(null, "", location.pathname + "#admin");
-    if (window.AdminPainel) window.AdminPainel.carregarLista();
   }
 
   function renderizarTudo() {
@@ -207,14 +183,6 @@
     atualizarBadge();
   });
 
-  if (btnVerAdmin) {
-    btnVerAdmin.addEventListener("click", mostrarAdmin);
-  }
-
   atualizarBadge();
   carregarProdutos();
-
-  if (location.hash === "#admin" && elSecaoAdmin) {
-    mostrarAdmin();
-  }
 })();

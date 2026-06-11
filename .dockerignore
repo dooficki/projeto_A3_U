@@ -1,7 +1,0 @@
-.git
-.env
-.cursor
-.vscode
-.idea
-**/Thumbs.db
-.DS_Store

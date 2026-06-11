@@ -28,25 +28,9 @@
     geral: "Geral",
   };
 
-  const CATEGORIAS_OPCOES = [
-    { value: "geral", label: "Geral" },
-    { value: "beauty", label: "Beleza" },
-    { value: "fragrances", label: "Perfumes" },
-    { value: "furniture", label: "Móveis" },
-  ];
-
   function traduzirCategoria(categoria) {
     const chave = String(categoria || "").toLowerCase();
     return CATEGORIAS_PT[chave] || categoria || "Geral";
-  }
-
-  function categoriaParaValor(categoria) {
-    const chave = String(categoria || "").toLowerCase();
-    if (Object.prototype.hasOwnProperty.call(CATEGORIAS_PT, chave)) return chave;
-    for (const [valor, rotulo] of Object.entries(CATEGORIAS_PT)) {
-      if (rotulo.toLowerCase() === chave) return valor;
-    }
-    return "geral";
   }
 
   function normalizarProduto(produto) {
@@ -65,9 +49,7 @@
 
   window.ApiProdutos = {
     LIMITE_PRODUTOS,
-    CATEGORIAS_OPCOES,
     traduzirCategoria,
-    categoriaParaValor,
 
     async carregarTodos() {
       const res = await fetch(API_URL);
