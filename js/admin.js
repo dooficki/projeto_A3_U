@@ -2,6 +2,7 @@
   const API_BASE = "/api";
 
   const elCorpo = document.getElementById("corpoTabela");
+  if (!elCorpo) return;
   const elAlerta = document.getElementById("adminAlerta");
   const elMsgVazio = document.getElementById("msgVazio");
   const btnNovo = document.getElementById("btnNovo");
@@ -50,7 +51,7 @@
   function formatarPreco(price) {
     const n = Number(price);
     if (Number.isNaN(n)) return "—";
-    return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "USD" }).format(n);
+    return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n);
   }
 
   function escapeHtml(s) {
@@ -65,7 +66,7 @@
     campoId.value = "";
     campoTitulo.value = "";
     campoPreco.value = "0";
-    campoCategoria.value = "";
+    campoCategoria.value = "geral";
     campoThumbnail.value = "";
     modal.show();
   }
@@ -76,7 +77,7 @@
     campoId.value = String(p.id);
     campoTitulo.value = p.title || "";
     campoPreco.value = String(p.price ?? 0);
-    campoCategoria.value = p.category || "";
+    campoCategoria.value = ApiProdutos.categoriaParaValor(p.category);
     campoThumbnail.value = p.thumbnail || "";
     modal.show();
   }
@@ -87,7 +88,7 @@
     const body = {
       title: campoTitulo.value.trim(),
       price: Number(campoPreco.value),
-      category: campoCategoria.value.trim() || "geral",
+      category: campoCategoria.value || "geral",
       thumbnail: campoThumbnail.value.trim(),
     };
     try {
@@ -106,17 +107,19 @@
       }
       modal.hide();
       await carregarLista();
+      document.dispatchEvent(new CustomEvent("produtos-locais-alterados"));
     } catch (e) {
       mostrarAlerta(String(e.message || e));
     }
   }
 
   async function excluir(id) {
-    if (!confirm("Remover este produto do banco? Esta ação não pode ser desfeita.")) return;
+    if (!confirm("Excluir este produto?")) return;
     limparAlerta();
     try {
       await request("/produtos/" + encodeURIComponent(id), { method: "DELETE" });
       await carregarLista();
+      document.dispatchEvent(new CustomEvent("produtos-locais-alterados"));
     } catch (e) {
       mostrarAlerta(String(e.message || e));
     }
@@ -135,7 +138,7 @@
         <td>${escapeHtml(String(p.id))}</td>
         <td>${escapeHtml(p.title || "")}</td>
         <td>${escapeHtml(formatarPreco(p.price))}</td>
-        <td>${escapeHtml(p.category || "")}</td>
+        <td>${escapeHtml(ApiProdutos.traduzirCategoria(p.category))}</td>
         <td class="text-end text-nowrap">
           <button type="button" class="btn btn-sm btn-outline-primary me-1 btn-editar">Editar</button>
           <button type="button" class="btn btn-sm btn-outline-danger btn-excluir">Excluir</button>
@@ -153,15 +156,13 @@
       const lista = await request("/produtos");
       renderizarLinhas(Array.isArray(lista) ? lista : []);
     } catch (e) {
-      mostrarAlerta(
-        "Não foi possível falar com a API. Suba o ambiente com perfil admin: docker compose --profile admin up -d. Detalhes: " +
-          (e.message || e)
-      );
+      mostrarAlerta("Erro ao conectar na API: " + (e.message || e));
       renderizarLinhas([]);
     }
   }
 
   btnNovo.addEventListener("click", abrirNovo);
   btnSalvar.addEventListener("click", salvar);
-  carregarLista();
+
+  window.AdminPainel = { carregarLista };
 })();

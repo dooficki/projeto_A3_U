@@ -7,7 +7,7 @@ services:
       - app-net
 
   postgres:
-    image: public.ecr.aws/docker/library/postgres:16-alpine
+    image: postgres:16-alpine
     profiles:
       - db
       - admin
@@ -31,11 +31,6 @@ services:
   api:
     build:
       context: ./api
-      args:
-        NPM_REGISTRY: ${NPM_REGISTRY:-https://registry.npmjs.org/}
-        HTTP_PROXY: ${HTTP_PROXY:-}
-        HTTPS_PROXY: ${HTTPS_PROXY:-}
-        NO_PROXY: ${NO_PROXY:-}
     profiles:
       - admin
     environment:

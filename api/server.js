@@ -89,7 +89,6 @@ function parseBody(body) {
   return { title, category, thumbnail, price };
 }
 
-/** @param {http.IncomingMessage} req */
 async function handle(req, res) {
   const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
   const path = url.pathname.replace(/\/+$/, "") || "/";
